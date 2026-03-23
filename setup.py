@@ -10,7 +10,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="warp-indicator",
-    version="1.0.0",
+    version="1.0",
     author="CoderAni34",
     author_email="coderAni34@users.noreply.github.com",
     description="System tray indicator for Cloudflare WARP VPN",

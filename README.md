@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
-[![Release](https://img.shields.io/badge/release-1.0.0-brightgreen.svg)](https://github.com/CoderAni34/warp-indicator/releases)
+[![Release](https://img.shields.io/badge/release-1.0-brightgreen.svg)](https://github.com/CoderAni34/warp-indicator/releases)
 
 A lightweight, professional system tray indicator for Cloudflare WARP VPN on Linux. Monitor your VPN connection status directly from your system taskbar with a clean, intuitive interface.
 
@@ -28,44 +28,50 @@ A lightweight, professional system tray indicator for Cloudflare WARP VPN on Lin
 
 ## 📦 Installation
 
-### From Debian Package (Recommended for Ubuntu/Debian)
+### From Pre-built Debian Package (Recommended for Ubuntu/Debian)
+
+The repository includes a pre-built .deb package for easy installation:
 
 ```bash
+# Install dependencies
 sudo apt-get update
 sudo apt-get install -y python3 python3-gi gir1.2-appindicator3-0.1 gir1.2-gtk-3.0 cloudflare-warp
 
-# Download and install the .deb package
-wget https://github.com/CoderAni34/warp-indicator/releases/download/v1.0.0/warp-indicator_1.0.0-1_all.deb
-sudo dpkg -i warp-indicator_1.0.0-1_all.deb
-```
-
-### Build from Source
-
-```bash
-# Clone the repository
+# Clone and install
 git clone https://github.com/CoderAni34/warp-indicator.git
 cd warp-indicator
+sudo dpkg -i warp-indicator_1.0-1.deb
+```
 
+**Or directly download and install:**
+
+```bash
 # Install dependencies
+sudo apt-get update
 sudo apt-get install -y python3 python3-gi gir1.2-appindicator3-0.1 gir1.2-gtk-3.0 cloudflare-warp
 
-# Install the application
-sudo pip3 install -r requirements.txt
-sudo python3 setup.py install
+# Download the latest .deb from the repository
+wget https://github.com/CoderAni34/warp-indicator/raw/master/warp-indicator_1.0-1.deb
+sudo dpkg -i warp-indicator_1.0-1.deb
 ```
 
-### Build Debian Package
+### Build Debian Package (For Development)
+
+To build your own Debian package from source:
 
 ```bash
 git clone https://github.com/CoderAni34/warp-indicator.git
 cd warp-indicator
+
+# Install build dependencies
+sudo apt-get install -y python3 python3-gi gir1.2-appindicator3-0.1 gir1.2-gtk-3.0 cloudflare-warp dh-python debhelper
 
 # Build the package
 chmod +x build.sh
 ./build.sh
 
 # Install the generated .deb file
-sudo dpkg -i build/warp-indicator_1.0.0-1_all.deb
+sudo dpkg -i build/warp-indicator_1.0-1_all.deb
 ```
 
 ## 🚀 Usage
