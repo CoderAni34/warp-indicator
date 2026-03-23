@@ -1,0 +1,9 @@
+# Debian changelog
+warp-indicator (1.0.0-1) unstable; urgency=medium
+
+  * Initial release
+  * System tray indicator for Cloudflare WARP VPN
+  * Real-time status monitoring
+  * Quick connect/disconnect toggle
+
+ -- CoderAni34 <coderAni34@users.noreply.github.com>  Sun, 23 Mar 2024 13:00:00 +0000
