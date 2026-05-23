@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-WARP Indicator - System tray indicator for Cloudflare WARP VPN
+WARP Indicator - Native GTK AppIndicator for Cloudflare WARP
 """
 
 import gi
@@ -9,36 +9,105 @@ gi.require_version('AppIndicator3', '0.1')
 
 from gi.repository import Gtk, AppIndicator3, GLib
 import subprocess
+import requests
 import os
-import sys
 
 
 class WARPIndicator:
-    """Main WARP Indicator application class"""
-    
+    """Main WARP Indicator application"""
+
     def __init__(self):
         self.app_name = "warp-indicator"
-        self.app_version = "1.0.0"
-        
-        # Create indicator
-        icon_path = os.path.dirname(os.path.abspath(__file__))
+        self.version = "1.1.0"
+
+        # -------------------------
+        # Paths
+        # -------------------------
+
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+
+        self.connected_icon = os.path.join(
+            self.base_dir,
+            "assets/icons/connected.svg"
+        )
+
+        self.disconnected_icon = os.path.join(
+            self.base_dir,
+            "assets/icons/disconnected.svg"
+        )
+
+        # -------------------------
+        # Create Indicator
+        # -------------------------
+
         self.indicator = AppIndicator3.Indicator.new(
             self.app_name,
-            "network-wireless",
+            self.disconnected_icon,
             AppIndicator3.IndicatorCategory.SYSTEM_SERVICES
         )
-        self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
-        
-        # Create menu
+
+        self.indicator.set_status(
+            AppIndicator3.IndicatorStatus.ACTIVE
+        )
+
+        # -------------------------
+        # Menu
+        # -------------------------
+
         self.menu = Gtk.Menu()
-        self.update_menu()
+
+        # Status label
+        self.status_item = Gtk.MenuItem(label="Checking status...")
+        self.status_item.set_sensitive(False)
+        self.menu.append(self.status_item)
+
+        # IP label
+        self.ip_item = Gtk.MenuItem(label="IP: Fetching...")
+        self.ip_item.set_sensitive(False)
+        self.menu.append(self.ip_item)
+
+        # Separator
+        self.menu.append(Gtk.SeparatorMenuItem())
+
+        # Toggle button
+        self.toggle_item = Gtk.MenuItem(label="Connect")
+        self.toggle_item.connect("activate", self.toggle_warp)
+        self.menu.append(self.toggle_item)
+
+        # Separator
+        self.menu.append(Gtk.SeparatorMenuItem())
+
+        # About button
+        about_item = Gtk.MenuItem(label="About")
+        about_item.connect("activate", self.show_about)
+        self.menu.append(about_item)
+
+        # Quit button
+        quit_item = Gtk.MenuItem(label="Quit")
+        quit_item.connect("activate", self.quit_app)
+        self.menu.append(quit_item)
+
+        self.menu.show_all()
         self.indicator.set_menu(self.menu)
-        
-        # Update status periodically
-        GLib.timeout_add_seconds(5, self.update_status)
-    
+
+        # -------------------------
+        # Start Updates
+        # -------------------------
+
+        self.update_ui()
+
+        GLib.timeout_add_seconds(
+            5,
+            self.update_ui
+        )
+
+    # -------------------------
+    # WARP Status
+    # -------------------------
+
     def get_warp_status(self):
-        """Get current WARP connection status"""
+        """Get WARP connection status"""
+
         try:
             result = subprocess.run(
                 ['warp-cli', 'status'],
@@ -46,106 +115,196 @@ class WARPIndicator:
                 text=True,
                 timeout=5
             )
-            return 'Connected' in result.stdout
+
+            output = result.stdout.lower()
+
+            if "status update: connected" in output:
+                return True
+
+            if "status update: disconnected" in output:
+                return False
+
+            return None
+
         except Exception:
             return None
-    
+
+    # -------------------------
+    # Public IP
+    # -------------------------
+
+    def get_public_ip(self):
+        """Fetch public IP"""
+
+        try:
+            response = requests.get(
+                "https://api.ipify.org",
+                timeout=5
+            )
+
+            return response.text.strip()
+
+        except Exception:
+            return "Unavailable"
+
+    # -------------------------
+    # Toggle Connection
+    # -------------------------
+
     def toggle_warp(self, widget):
-        """Toggle WARP connection on/off"""
+        """Connect or disconnect WARP"""
+
         try:
             status = self.get_warp_status()
+
             if status:
-                subprocess.run(['warp-cli', 'disconnect'], check=False)
+                subprocess.run(
+                    ['warp-cli', 'disconnect'],
+                    check=False
+                )
             else:
-                subprocess.run(['warp-cli', 'connect'], check=False)
-            self.update_menu()
+                subprocess.run(
+                    ['warp-cli', 'connect'],
+                    check=False
+                )
+
+            GLib.timeout_add_seconds(
+                2,
+                self.update_ui
+            )
+
         except Exception as e:
-            print(f"Error toggling WARP: {e}")
-    
-    def update_menu(self):
-        """Update menu items based on current status"""
-        # Clear existing menu
-        for item in self.menu.get_children():
-            self.menu.remove(item)
-        
-        # Get current status
+            print(f"Toggle error: {e}")
+
+    # -------------------------
+    # Update UI
+    # -------------------------
+
+    def update_ui(self):
+        """Update indicator UI"""
+
         status = self.get_warp_status()
-        
-        if status is None:
-            status_text = "Status: Unknown"
-        elif status:
-            status_text = "Status: Connected ✓"
+
+        # -------------------------
+        # Connected
+        # -------------------------
+
+        if status is True:
+
+            ip = self.get_public_ip()
+
+            self.status_item.set_label(
+                "Status: Connected ✓"
+            )
+
+            self.ip_item.set_label(
+                f"IP: {ip}"
+            )
+
+            self.toggle_item.set_label(
+                "Disconnect"
+            )
+
+            self.indicator.set_icon_full(
+                self.connected_icon,
+                "Connected"
+            )
+
+        # -------------------------
+        # Disconnected
+        # -------------------------
+
+        elif status is False:
+
+            self.status_item.set_label(
+                "Status: Disconnected"
+            )
+
+            self.ip_item.set_label(
+                "IP: Not Connected"
+            )
+
+            self.toggle_item.set_label(
+                "Connect"
+            )
+
+            self.indicator.set_icon_full(
+                self.disconnected_icon,
+                "Disconnected"
+            )
+
+        # -------------------------
+        # Unknown State
+        # -------------------------
+
         else:
-            status_text = "Status: Disconnected"
-        
-        # Status item
-        status_item = Gtk.MenuItem(label=status_text)
-        status_item.set_sensitive(False)
-        self.menu.append(status_item)
-        
-        # Separator
-        sep1 = Gtk.SeparatorMenuItem()
-        self.menu.append(sep1)
-        
-        # Toggle button
-        toggle_text = "Disconnect" if status else "Connect"
-        toggle_item = Gtk.MenuItem(label=toggle_text)
-        toggle_item.connect("activate", self.toggle_warp)
-        self.menu.append(toggle_item)
-        
-        # Separator
-        sep2 = Gtk.SeparatorMenuItem()
-        self.menu.append(sep2)
-        
-        # Settings item
-        settings_item = Gtk.MenuItem(label="Settings")
-        settings_item.connect("activate", self.open_settings)
-        self.menu.append(settings_item)
-        
-        # About item
-        about_item = Gtk.MenuItem(label="About")
-        about_item.connect("activate", self.show_about)
-        self.menu.append(about_item)
-        
-        # Quit item
-        quit_item = Gtk.MenuItem(label="Quit")
-        quit_item.connect("activate", self.quit_app)
-        self.menu.append(quit_item)
-        
-        self.menu.show_all()
-    
-    def update_status(self):
-        """Periodically update menu status"""
-        self.update_menu()
+
+            self.status_item.set_label(
+                "Status: Unknown"
+            )
+
+            self.ip_item.set_label(
+                "IP: Unknown"
+            )
+
+            self.toggle_item.set_label(
+                "Retry"
+            )
+
         return True
-    
-    def open_settings(self, widget):
-        """Open WARP settings"""
-        try:
-            subprocess.Popen(['warp-cli', 'settings'])
-        except Exception as e:
-            print(f"Error opening settings: {e}")
-    
+
+    # -------------------------
+    # About Dialog
+    # -------------------------
+
     def show_about(self, widget):
-        """Show about dialog"""
+        """Show About dialog"""
+
         dialog = Gtk.AboutDialog()
-        dialog.set_program_name("WARP Indicator")
-        dialog.set_version(self.app_version)
-        dialog.set_comments("System tray indicator for Cloudflare WARP VPN")
-        dialog.set_website("https://github.com/CoderAni34/warp-indicator")
-        dialog.set_authors(["CoderAni34"])
-        dialog.set_license_type(Gtk.License.MIT)
+
+        dialog.set_program_name(
+            "WARP Indicator"
+        )
+
+        dialog.set_version(
+            self.version
+        )
+
+        dialog.set_comments(
+            "Native GTK AppIndicator for Cloudflare WARP"
+        )
+
+        dialog.set_website(
+            "https://github.com/CoderAni34/warp-indicator"
+        )
+
+        dialog.set_authors(
+            ["CoderAni34"]
+        )
+
+        dialog.set_license_type(
+            Gtk.License.MIT_X11
+        )
+
         dialog.run()
         dialog.destroy()
-    
+
+    # -------------------------
+    # Quit
+    # -------------------------
+
     def quit_app(self, widget):
-        """Quit the application"""
         Gtk.main_quit()
 
 
+# -------------------------
+# Main Entry
+# -------------------------
+
 def main():
-    """Main entry point"""
-    app = WARPIndicator()
+
+    WARPIndicator()
+
     Gtk.main()
 
 
