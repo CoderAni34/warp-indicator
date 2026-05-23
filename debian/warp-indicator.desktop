@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=WARP Indicator
+Exec=/usr/local/bin/warp-indicator
+Icon=/usr/share/warp-indicator/icons/connected.svg
+Terminal=false
+Categories=Network;

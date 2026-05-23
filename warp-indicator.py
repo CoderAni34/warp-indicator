@@ -8,36 +8,33 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('AppIndicator3', '0.1')
 
 from gi.repository import Gtk, AppIndicator3, GLib
+
 import subprocess
 import requests
-import os
 
 
 class WARPIndicator:
-    """Main WARP Indicator application"""
+    """Main WARP Indicator Application"""
 
     def __init__(self):
+
         self.app_name = "warp-indicator"
         self.version = "1.1.0"
 
         # -------------------------
-        # Paths
+        # Installed Icon Paths
         # -------------------------
 
-        self.base_dir = os.path.dirname(os.path.abspath(__file__))
-
-        self.connected_icon = os.path.join(
-            self.base_dir,
-            "assets/icons/connected.svg"
+        self.connected_icon = (
+            "/usr/share/warp-indicator/icons/connected.svg"
         )
 
-        self.disconnected_icon = os.path.join(
-            self.base_dir,
-            "assets/icons/disconnected.svg"
+        self.disconnected_icon = (
+            "/usr/share/warp-indicator/icons/disconnected.svg"
         )
 
         # -------------------------
-        # Create Indicator
+        # Create AppIndicator
         # -------------------------
 
         self.indicator = AppIndicator3.Indicator.new(
@@ -51,27 +48,36 @@ class WARPIndicator:
         )
 
         # -------------------------
-        # Menu
+        # Create Menu
         # -------------------------
 
         self.menu = Gtk.Menu()
 
-        # Status label
-        self.status_item = Gtk.MenuItem(label="Checking status...")
+        # Status item
+        self.status_item = Gtk.MenuItem(
+            label="Checking status..."
+        )
         self.status_item.set_sensitive(False)
         self.menu.append(self.status_item)
 
-        # IP label
-        self.ip_item = Gtk.MenuItem(label="IP: Fetching...")
+        # IP item
+        self.ip_item = Gtk.MenuItem(
+            label="Fetching IP..."
+        )
         self.ip_item.set_sensitive(False)
         self.menu.append(self.ip_item)
 
         # Separator
         self.menu.append(Gtk.SeparatorMenuItem())
 
-        # Toggle button
-        self.toggle_item = Gtk.MenuItem(label="Connect")
-        self.toggle_item.connect("activate", self.toggle_warp)
+        # Connect/Disconnect button
+        self.toggle_item = Gtk.MenuItem(
+            label="Connect"
+        )
+        self.toggle_item.connect(
+            "activate",
+            self.toggle_warp
+        )
         self.menu.append(self.toggle_item)
 
         # Separator
@@ -79,15 +85,22 @@ class WARPIndicator:
 
         # About button
         about_item = Gtk.MenuItem(label="About")
-        about_item.connect("activate", self.show_about)
+        about_item.connect(
+            "activate",
+            self.show_about
+        )
         self.menu.append(about_item)
 
         # Quit button
         quit_item = Gtk.MenuItem(label="Quit")
-        quit_item.connect("activate", self.quit_app)
+        quit_item.connect(
+            "activate",
+            self.quit_app
+        )
         self.menu.append(quit_item)
 
         self.menu.show_all()
+
         self.indicator.set_menu(self.menu)
 
         # -------------------------
@@ -102,11 +115,10 @@ class WARPIndicator:
         )
 
     # -------------------------
-    # WARP Status
+    # Get WARP Status
     # -------------------------
 
     def get_warp_status(self):
-        """Get WARP connection status"""
 
         try:
             result = subprocess.run(
@@ -130,11 +142,10 @@ class WARPIndicator:
             return None
 
     # -------------------------
-    # Public IP
+    # Get Public IP
     # -------------------------
 
     def get_public_ip(self):
-        """Fetch public IP"""
 
         try:
             response = requests.get(
@@ -148,11 +159,10 @@ class WARPIndicator:
             return "Unavailable"
 
     # -------------------------
-    # Toggle Connection
+    # Toggle WARP
     # -------------------------
 
     def toggle_warp(self, widget):
-        """Connect or disconnect WARP"""
 
         try:
             status = self.get_warp_status()
@@ -181,7 +191,6 @@ class WARPIndicator:
     # -------------------------
 
     def update_ui(self):
-        """Update indicator UI"""
 
         status = self.get_warp_status()
 
@@ -234,7 +243,7 @@ class WARPIndicator:
             )
 
         # -------------------------
-        # Unknown State
+        # Unknown
         # -------------------------
 
         else:
@@ -258,7 +267,6 @@ class WARPIndicator:
     # -------------------------
 
     def show_about(self, widget):
-        """Show About dialog"""
 
         dialog = Gtk.AboutDialog()
 
@@ -294,11 +302,12 @@ class WARPIndicator:
     # -------------------------
 
     def quit_app(self, widget):
+
         Gtk.main_quit()
 
 
 # -------------------------
-# Main Entry
+# Main
 # -------------------------
 
 def main():
