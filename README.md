@@ -1,151 +1,234 @@
 # WARP Indicator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/)
-[![Release](https://img.shields.io/badge/release-1.0-brightgreen.svg)](https://github.com/CoderAni34/warp-indicator/releases)
+[![Python](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/)
+[![Linux](https://img.shields.io/badge/platform-Linux-green.svg)](https://kernel.org/)
+[![Release](https://img.shields.io/badge/release-v1.1.0-brightgreen.svg)](https://github.com/CoderAni34/warp-indicator/releases)
 
-A lightweight, professional system tray indicator for Cloudflare WARP VPN on Linux. Monitor your VPN connection status directly from your system taskbar with a clean, intuitive interface.
+A lightweight native GTK system tray indicator for Cloudflare WARP on Linux.
 
-## 🌟 Features
+WARP Indicator provides quick access to connect/disconnect WARP, monitor connection status, and view your public IP directly from the system tray using AppIndicator.
 
-- **Real-time Status Monitor** - See your WARP connection status at a glance with dynamic updates
-- **Quick Toggle** - Enable/disable WARP directly from the system tray with a single click
-- **Lightweight** - Minimal system resource usage with pure Python implementation
-- **Debian/Ubuntu Support** - Professional Debian packaging with easy installation
-- **Native Integration** - System tray integration using AppIndicator3 for seamless desktop experience
-- **About & Settings** - Quick access to settings and application information
-- **Cross-platform Linux** - Works on all major Linux distributions with GTK 3.0+
+---
 
-## 📋 Requirements
+# Features
 
-- **OS:** Linux (Ubuntu, Debian, Fedora, Arch, etc.)
-- **Python:** 3.6 or higher
-- **Cloudflare WARP:** Must be installed and available as `warp-cli`
-- **Dependencies:**
-  - GTK 3.0+ 
-  - libappindicator3
-  - PyGObject (Python GObject bindings)
+* Native GTK/AppIndicator integration
+* Connect/disconnect WARP directly from tray
+* Real-time WARP status updates
+* Public IP display
+* Lightweight and minimal resource usage
+* Auto-start support
+* Debian package support (`.deb`)
+* Self-contained icon assets (independent from Cloudflare updates)
 
-## 📦 Installation
+---
 
-### From Pre-built Debian Package (Recommended for Ubuntu/Debian)
+# Screenshots
 
-The repository includes a pre-built .deb package for easy installation:
+## Connected
 
-```bash
-# Install dependencies
-sudo apt-get update
-sudo apt-get install -y python3 python3-gi gir1.2-appindicator3-0.1 gir1.2-gtk-3.0 cloudflare-warp
+![Connected](screenshots/connected.png)
 
-# Clone and install
-git clone https://github.com/CoderAni34/warp-indicator.git
-cd warp-indicator
-sudo dpkg -i warp-indicator_1.0-1.deb
-```
+## Disconnected
 
-**Or directly download and install:**
+![Disconnected](screenshots/disconnected.png)
 
-```bash
-# Install dependencies
-sudo apt-get update
-sudo apt-get install -y python3 python3-gi gir1.2-appindicator3-0.1 gir1.2-gtk-3.0 cloudflare-warp
+---
 
-# Download the latest .deb from the repository
-wget https://github.com/CoderAni34/warp-indicator/raw/master/warp-indicator_1.0-1.deb
-sudo dpkg -i warp-indicator_1.0-1.deb
-```
+# Requirements
 
-### Build Debian Package (For Development)
+* Linux (Ubuntu/GNOME recommended)
+* Python 3.6+
+* Cloudflare WARP installed
+* `warp-cli` available in PATH
 
-To build your own Debian package from source:
+Required packages:
 
 ```bash
-git clone https://github.com/CoderAni34/warp-indicator.git
-cd warp-indicator
-
-# Install build dependencies
-sudo apt-get install -y python3 python3-gi gir1.2-appindicator3-0.1 gir1.2-gtk-3.0 cloudflare-warp dh-python debhelper
-
-# Build the package
-chmod +x build.sh
-./build.sh
-
-# Install the generated .deb file
-sudo dpkg -i build/warp-indicator_1.0-1_all.deb
+python3
+python3-gi
+gir1.2-appindicator3-0.1
+gir1.2-gtk-3.0
+python3-requests
+cloudflare-warp
 ```
 
-## 🚀 Usage
+---
 
-### Command Line
+# Installation
+
+## Install Dependencies
+
+### Ubuntu / Debian
+
+```bash
+sudo apt update
+
+sudo apt install -y \
+python3 \
+python3-gi \
+python3-requests \
+gir1.2-appindicator3-0.1 \
+gir1.2-gtk-3.0 \
+cloudflare-warp
+```
+
+---
+
+# Download
+
+Download the latest `.deb` package from the Releases page:
+
+[WARP Indicator Releases](https://github.com/CoderAni34/warp-indicator/releases?utm_source=chatgpt.com)
+
+---
+
+# Install Package
+
+```bash
+sudo dpkg -i warp-indicator_1.1-1.deb
+sudo apt -f install
+```
+
+---
+
+# Usage
+
+Launch manually:
 
 ```bash
 warp-indicator
 ```
 
-Or directly:
+or:
+
 ```bash
 python3 warp-indicator.py
 ```
 
-### System Startup
+The indicator will appear in the system tray.
 
-The application will integrate with your system tray. Look for the WARP Indicator icon:
+From the tray menu you can:
 
-- **View Status** - Click the indicator to see current connection status
-- **Quick Toggle** - Click "Connect" or "Disconnect" to toggle VPN
-- **Settings** - Access Cloudflare WARP settings panel
-- **About** - View application information
-- **Quit** - Exit the application
-
-## 🏗️ Project Structure
-
-```
-warp-indicator/
-├── warp-indicator.py       # Main application code
-├── setup.py                # Python package setup
-├── requirements.txt        # Python dependencies
-├── build.sh               # Build script for Debian packaging
-├── LICENSE                # MIT License
-├── README.md              # This file
-└── debian/                # Debian packaging files
-    ├── control            # Package metadata
-    ├── rules              # Build rules
-    ├── changelog          # Version history
-    └── compat             # Debhelper compatibility
-```
-
-## 🔧 Configuration
-
-The application works out of the box with no configuration required. It communicates directly with `warp-cli` to control your WARP connection.
-
-## 📝 License
-
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! To contribute:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 🐛 Bug Reports & Feature Requests
-
-Found a bug or have a feature request? Please open an [issue](https://github.com/CoderAni34/warp-indicator/issues) on GitHub.
-
-## 📧 Support
-
-For questions and support, please open an [issue](https://github.com/CoderAni34/warp-indicator/issues) on GitHub or contact the maintainer.
-
-## 🙏 Acknowledgments
-
-- [Cloudflare WARP](https://warp.com/) - VPN service
-- [GNOME Project](https://www.gnome.org/) - GTK and AppIndicator libraries
-- [Python](https://www.python.org/) - Programming language
+* View WARP connection state
+* View current public IP
+* Connect/disconnect WARP
+* Open About dialog
+* Quit the application
 
 ---
 
-Made with ❤️ by [CoderAni34](https://github.com/CoderAni34)
+# Auto-start
+
+The Debian package installs an autostart entry automatically.
+
+After login, WARP Indicator should launch automatically in supported desktop environments.
+
+---
+
+# Important Notes
+
+## Official Cloudflare Tray Conflict
+
+Cloudflare WARP ships with its own tray application:
+
+```text
+warp-taskbar
+```
+
+Running both applications simultaneously may cause duplicate tray icons.
+
+If duplicate icons appear, disable the official tray service:
+
+```bash
+systemctl --user disable warp-taskbar.service
+systemctl --user stop warp-taskbar.service
+systemctl --user mask warp-taskbar.service
+```
+
+This does NOT disable:
+
+```text
+warp-svc
+```
+
+which is still required for WARP functionality.
+
+---
+
+# Project Structure
+
+```text
+warp-indicator/
+├── assets/
+│   └── icons/
+├── debian/
+├── screenshots/
+├── LICENSE
+├── README.md
+├── build.sh
+├── requirements.txt
+└── warp-indicator.py
+```
+
+---
+
+# Building From Source
+
+Clone repository:
+
+```bash
+git clone https://github.com/CoderAni34/warp-indicator.git
+cd warp-indicator
+```
+
+Run build script:
+
+```bash
+chmod +x build.sh
+./build.sh
+```
+
+The generated `.deb` package will be created in the build directory.
+
+---
+
+# Known Limitations
+
+* Primarily tested on Ubuntu/GNOME
+* Tray/AppIndicator behavior may vary across desktop environments
+* Requires Cloudflare WARP CLI (`warp-cli`)
+* Wayland support depends on desktop environment AppIndicator compatibility
+
+---
+
+# Contributing
+
+Pull requests, bug reports, and improvements are welcome.
+
+If you encounter issues:
+
+* Open an issue
+* Include logs/screenshots
+* Mention your Linux distribution and desktop environment
+
+---
+
+# License
+
+This project is licensed under the MIT License.
+
+See the `LICENSE` file for details.
+
+---
+
+# Acknowledgements
+
+* [Cloudflare WARP](https://warp.com/?utm_source=chatgpt.com)
+* [GNOME Project](https://www.gnome.org/?utm_source=chatgpt.com)
+* [Python](https://www.python.org/?utm_source=chatgpt.com)
+
+---
+
+Made by [CoderAni34](https://github.com/CoderAni34?utm_source=chatgpt.com)
