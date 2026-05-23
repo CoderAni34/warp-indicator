@@ -115,3 +115,6 @@ debian/files
 debian/warp-indicator/
 debian/warp-indicator.debhelper.log
 debian/warp-indicator.substvars
+
+# Built packages
+*.deb
